@@ -3,81 +3,527 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guia de Peças e Manutenção 2D</title>
+  <title>AutoPeças 2D - Guia Interativo de Peças e Manutenção</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Estilos das zonas clicáveis no SVG (Tema Claro) */
+    .svg-zone {
+      fill: rgba(37, 99, 235, 0.05);
+      stroke: #2563eb;
+      stroke-width: 2;
+      stroke-dasharray: 4;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .svg-zone:hover, .svg-zone.active {
+      fill: rgba(220, 38, 38, 0.12);
+      stroke: #dc2626;
+      stroke-width: 3;
+      stroke-dasharray: 0;
+      filter: drop-shadow(0px 2px 8px rgba(220, 38, 38, 0.25));
+    }
+    .car-body-path {
+      transition: fill 0.4s ease;
+    }
+    /* Animação Pulsante dos Hotspots */
+    .hotspot-pin {
+      animation: pulse-ring 2s infinite;
+      cursor: pointer;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.9; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.9; }
+    }
+    /* Scrollbar Personalizada */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
 </head>
-<body class="bg-white text-slate-800 p-4 md:p-8 font-sans">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- CONFIGURAÇÃO DO SEU AFILIADO NO JAVASCRIPT -->
-  <script>
-    const AFILIADOS_CONFIG = {
-      mercadolivre: {
-        ativo: true,
-        // Seus parâmetros oficiais de Afiliado Mercado Livre
-        trackingParams: "matt_tool=60782260&matt_word=antoniocfn12",
+  <!-- Header / Topbar -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-3 w-full lg:w-auto justify-between">
+        <div class="flex items-center gap-2">
+          <span class="bg-blue-600 text-white font-black px-2.5 py-1 rounded-lg text-xs shadow-md shadow-blue-500/20">2D</span>
+          <h1 class="text-lg font-bold tracking-tight text-slate-900">AutoPeças <span class="text-blue-600">Brasil</span></h1>
+        </div>
+      </div>
+
+      <!-- Pesquisa de Carros Inteligente & Busca de Peças -->
+      <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
         
-        gerarLink: function(termoBusca) {
-          const urlBase = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoBusca)}`;
-          return `${urlBase}?${this.trackingParams}`;
-        }
+        <!-- Autocomplete / Busca Rápida de Veículos -->
+        <div class="relative w-full sm:w-80">
+          <div class="relative">
+            <input type="text" id="vehicle-search" placeholder="Digite o carro (ex: Corsa, Nivus, Gol)..." 
+                   autocomplete="off"
+                   class="w-full bg-slate-50 border border-slate-300 text-xs font-semibold rounded-xl pl-9 pr-8 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <button id="clear-vehicle-search" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+          </div>
+
+          <!-- Dropdown da lista de carros filtrada -->
+          <div id="vehicle-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-100">
+            <!-- Injetado via JS -->
+          </div>
+        </div>
+
+        <!-- Campo de Pesquisa Rápida de Peça -->
+        <div class="relative w-full sm:w-64">
+          <input type="text" id="search-input" placeholder="Filtrar peça atual (ex: embreagem)..." 
+                 class="w-full bg-slate-50 border border-slate-300 text-xs rounded-xl pl-9 pr-3 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+    
+    <!-- Painel Principal 2D (8 Colunas) -->
+    <div class="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[480px]">
+      
+      <!-- Topo do Card (Info do Carro + Seletor de Cores) -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 border-b border-slate-100 pb-4">
+        <div>
+          <span id="car-body-badge" class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">Carroceria: Hatch</span>
+          <h2 id="car-title" class="text-2xl font-black text-slate-900 mt-1">VW Gol G2 / G3 / G4</h2>
+          <p class="text-xs text-slate-500">Clique nas partes tracejadas do desenho para visualizar o catálogo.</p>
+        </div>
+
+        <!-- Seletor de Cores da Lataria -->
+        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
+          <span class="text-[11px] font-bold text-slate-400 pl-1">Cor:</span>
+          <button onclick="mudarCorCarro('#f8fafc')" class="w-5 h-5 rounded-full bg-white border border-slate-300 shadow-sm hover:scale-110 transition" title="Branco"></button>
+          <button onclick="mudarCorCarro('#94a3b8')" class="w-5 h-5 rounded-full bg-slate-400 hover:scale-110 transition" title="Prata"></button>
+          <button onclick="mudarCorCarro('#1e293b')" class="w-5 h-5 rounded-full bg-slate-800 hover:scale-110 transition" title="Preto"></button>
+          <button onclick="mudarCorCarro('#dc2626')" class="w-5 h-5 rounded-full bg-red-600 hover:scale-110 transition" title="Vermelho"></button>
+          <button onclick="mudarCorCarro('#2563eb')" class="w-5 h-5 rounded-full bg-blue-600 hover:scale-110 transition" title="Azul"></button>
+        </div>
+      </div>
+
+      <!-- Container do Vetor SVG -->
+      <div id="svg-container" class="w-full my-auto flex justify-center py-6 relative">
+        <!-- O SVG dinâmico entra aqui via JavaScript -->
+      </div>
+
+      <!-- Rodapé / Legendas -->
+      <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-4 gap-2 z-10">
+        <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 hotspot-pin"></span> Selecione um setor no mapa 2D</span>
+        <div class="flex items-center gap-3 text-[11px]">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 🟢 DIY</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> 🟡 Médio</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> 🔴 Oficina</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel Lateral / Lista de Peças (4 Colunas) -->
+    <div class="lg:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="border-b border-slate-100 pb-4 mb-4">
+          <div class="flex justify-between items-center">
+            <span id="zone-badge" class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</span>
+            <span id="zone-count" class="text-xs bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded-md">0 peças</span>
+          </div>
+          <h3 id="zone-title" class="text-lg font-bold text-slate-900 mt-1">Nenhuma área selecionada</h3>
+          <p id="zone-desc" class="text-xs text-slate-500 mt-1">Clique no motor, rodas, portas, vidros ou faróis no desenho ao lado.</p>
+        </div>
+
+        <!-- Lista de Peças -->
+        <div id="parts-list" class="space-y-3 max-h-[440px] overflow-y-auto pr-1">
+          <div class="p-8 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+            Aguardando seleção no desenho 2D...
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
+        Resultados compatíveis com a versão e ano do veículo escolhido.
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Base Ampliada de Veículos
+    const listaVeiculos = [
+      // Hatches
+      { id: "vw-gol-g2-g4", nome: "VW Gol G2 / G3 / G4 (1996 - 2013)", body: "hatch" },
+      { id: "vw-gol-g5-g8", nome: "VW Gol G5 / G6 / G7 / G8 (2008 - 2023)", body: "hatch" },
+      { id: "vw-polo", nome: "VW Polo / Novo Polo (2002 - Presente)", body: "hatch" },
+      { id: "fiat-uno-mille", nome: "Fiat Uno Mille (1984 - 2013)", body: "hatch" },
+      { id: "fiat-uno-vivace", nome: "Fiat Uno Vivace / Novo Uno (2010 - 2021)", body: "hatch" },
+      { id: "fiat-palio-g1-g4", nome: "Fiat Palio G1 / G2 / G3 / G4 (1996 - 2017)", body: "hatch" },
+      { id: "fiat-argo", nome: "Fiat Argo (2017 - Presente)", body: "hatch" },
+      { id: "gm-celta", nome: "Chevrolet Celta (2000 - 2015)", body: "hatch" },
+      { id: "gm-corsa-classic", nome: "Chevrolet Corsa / Wind (1994 - 2012)", body: "hatch" },
+      { id: "gm-onix-g1", nome: "Chevrolet Onix G1 (2012 - 2019)", body: "hatch" },
+      { id: "gm-onix-g2", nome: "Chevrolet Onix G2 Turbo (2019 - Presente)", body: "hatch" },
+      { id: "hb20-g1", nome: "Hyundai HB20 G1 (2012 - 2019)", body: "hatch" },
+      { id: "hb20-g2", nome: "Hyundai HB20 G2 (2019 - Presente)", body: "hatch" },
+      { id: "ford-ka-g3", nome: "Ford Ka G3 (2014 - 2021)", body: "hatch" },
+      { id: "renault-kwid", nome: "Renault Kwid (2017 - Presente)", body: "hatch" },
+      { id: "peugeot-208", nome: "Peugeot 208 (2013 - Presente)", body: "hatch" },
+      
+      // Sedans
+      { id: "corolla-g9-g10", nome: "Toyota Corolla (2008 - 2019)", body: "sedan" },
+      { id: "corolla-g11", nome: "Toyota Corolla Hybrid / Flex (2020 - Presente)", body: "sedan" },
+      { id: "civic-g8-g9", nome: "Honda Civic G8 / G9 / G10 (2006 - 2021)", body: "sedan" },
+      { id: "vw-voyage", nome: "VW Voyage G5 / G6 / G7 (2008 - 2023)", body: "sedan" },
+      { id: "gm-prisma", nome: "Chevrolet Prisma / Joy Plus (2006 - 2021)", body: "sedan" },
+      { id: "gm-cobalt", nome: "Chevrolet Cobalt (2011 - 2020)", body: "sedan" },
+      { id: "fiat-cronos", nome: "Fiat Cronos (2018 - Presente)", body: "sedan" },
+      { id: "nissan-versa", nome: "Nissan Versa / V-Drive (2011 - Presente)", body: "sedan" },
+
+      // Picapes
+      { id: "fiat-strada-g1", nome: "Fiat Strada G1 (1998 - 2020)", body: "picape" },
+      { id: "fiat-strada-g2", nome: "Fiat Strada Nova (2020 - Presente)", body: "picape" },
+      { id: "vw-saveiro", nome: "VW Saveiro G5 / G6 / G7 (2009 - Presente)", body: "picape" },
+      { id: "toyota-hilux", nome: "Toyota Hilux (2006 - Presente)", body: "picape" },
+
+      // SUVs
+      { id: "vw-nivus", nome: "VW Nivus Turbo (2020 - Presente)", body: "suv" },
+      { id: "vw-tcross", nome: "VW T-Cross (2019 - Presente)", body: "suv" },
+      { id: "renegade", nome: "Jeep Renegade (2015 - Presente)", body: "suv" },
+      { id: "compass", nome: "Jeep Compass (2016 - Presente)", body: "suv" },
+      { id: "ecosport", nome: "Ford EcoSport (2003 - 2021)", body: "suv" },
+      { id: "hyundai-creta", nome: "Hyundai Creta (2016 - Presente)", body: "suv" },
+      { id: "nissan-kicks", nome: "Nissan Kicks (2016 - Presente)", body: "suv" }
+    ];
+
+    // SVG Templates por tipo de carroceria com rotulagem de cores e zonas ajustadas
+    const svgTemplates = {
+      hatch: `
+        <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
+          <g stroke="#94a3b8" stroke-width="3">
+            <path id="car-body" class="car-body-path" d="M 60,200 C 60,200 80,160 150,150 C 210,140 270,90 360,90 C 490,90 570,100 630,150 C 690,160 740,210 L 730,240 L 60,240 Z" fill="#f8fafc" />
+            <path d="M 290,100 L 360,100 C 470,100 530,105 580,150 L 270,150 Z" fill="#e2e8f0" />
+            <circle cx="170" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <circle cx="600" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+          </g>
+          <!-- Zonas Clicáveis -->
+          <rect x="570" y="155" width="120" height="60" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="170" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <circle cx="600" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <path d="M 690,175 L 730,175 L 730,205 L 680,205 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="280" y="95" width="220" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="220" y="150" width="90" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+        </svg>`,
+      sedan: `
+        <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
+          <g stroke="#94a3b8" stroke-width="3">
+            <path id="car-body" class="car-body-path" d="M 40,210 L 110,200 C 170,190 240,100 350,100 L 530,100 C 600,140 650,190 760,195 L 750,240 L 40,240 Z" fill="#f8fafc" />
+            <path d="M 260,110 L 510,110 L 580,160 L 240,160 Z" fill="#e2e8f0" />
+            <circle cx="170" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <circle cx="610" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+          </g>
+          <rect x="580" y="165" width="130" height="55" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="610" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <circle cx="170" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <path d="M 720,185 L 750,185 L 750,210 L 710,210 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="270" y="115" width="240" height="60" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="200" y="150" width="70" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+        </svg>`,
+      picape: `
+        <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
+          <g stroke="#94a3b8" stroke-width="3">
+            <path id="car-body" class="car-body-path" d="M 50,240 L 50,180 L 350,180 L 400,100 L 550,100 L 630,160 L 750,170 L 740,240 Z" fill="#f8fafc" />
+            <path d="M 410,110 L 540,110 L 590,160 L 410,160 Z" fill="#e2e8f0" />
+            <circle cx="180" cy="240" r="45" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <circle cx="610" cy="240" r="45" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+          </g>
+          <rect x="590" y="155" width="120" height="60" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="610" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <circle cx="180" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <path d="M 710,170 L 740,170 L 740,200 L 700,200 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="410" y="115" width="150" height="60" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="340" y="160" width="60" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+        </svg>`,
+      suv: `
+        <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
+          <g stroke="#94a3b8" stroke-width="3">
+            <path id="car-body" class="car-body-path" d="M 60,240 L 60,150 L 180,140 L 290,80 L 580,80 L 660,140 L 740,150 L 740,240 Z" fill="#f8fafc" />
+            <path d="M 300,90 L 570,90 L 630,140 L 300,140 Z" fill="#e2e8f0" />
+            <circle cx="180" cy="240" r="48" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <circle cx="600" cy="240" r="48" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+          </g>
+          <rect x="590" y="145" width="120" height="65" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="600" cy="240" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <circle cx="180" cy="240" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
+          <path d="M 700,150 L 730,150 L 730,180 L 690,180 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="300" y="90" width="260" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="220" y="145" width="70" height="55" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+        </svg>`
+    };
+
+    // Banco de Peças com Classificação de Dificuldade
+    const dbPecas = {
+      "motor": {
+        nome: "Motor, Câmbio & Cofragem",
+        desc: "Componentes internos do motor, transmissão e embreagem.",
+        pecas: [
+          { nome: "Vela de Ignição (Jogo)", busca: "jogo de velas ignicao", dif: "diy" },
+          { nome: "Cabo de Vela / Bobina", busca: "bobina de ignicao", dif: "diy" },
+          { nome: "Filtro de Óleo do Motor", busca: "filtro de oleo", dif: "medium" },
+          { nome: "Filtro de Ar do Motor", busca: "filtro de ar motor", dif: "diy" },
+          { nome: "Filtro de Combustível", busca: "filtro de combustivel", dif: "medium" },
+          { nome: "Kit Correia Dentada e Tensor", busca: "kit correia dentada", dif: "pro" },
+          { nome: "Correia de Acessórios (Poli-V)", busca: "correia poly v", dif: "medium" },
+          { nome: "Kit de Embreagem (Disco + Platô)", busca: "kit de embreagem", dif: "pro" },
+          { nome: "Atuador / Cabo de Embreagem", busca: "atuador de embreagem", dif: "pro" },
+          { nome: "Óleo de Câmbio / Transmissão", busca: "oleo de cambio", dif: "medium" },
+          { nome: "Bateria Automotiva", busca: "bateria automotiva", dif: "diy" },
+          { nome: "Alternador", busca: "alternador", dif: "pro" },
+          { nome: "Motor de Partida / Arranque", busca: "motor de partida", dif: "pro" },
+          { nome: "Radiador de Água", busca: "radiador", dif: "pro" },
+          { nome: "Bomba d'Água", busca: "bomba d agua", dif: "pro" },
+          { nome: "Válvula Termostática", busca: "valvula termostatica", dif: "medium" },
+          { nome: "Coxim do Motor", busca: "coxim do motor", dif: "pro" },
+          { nome: "Coxim do Câmbio", busca: "coxim do cambio", dif: "pro" }
+        ]
+      },
+      "roda": {
+        nome: "Rodas, Suspensão & Freios",
+        desc: "Amortecedores, coxins, molas, discos e pastilhas.",
+        pecas: [
+          { nome: "Par de Amortecedores Dianteiros", busca: "amortecedor dianteiro", dif: "pro" },
+          { nome: "Par de Amortecedores Traseiros", busca: "amortecedor traseiro", dif: "pro" },
+          { nome: "Kit Batente + Coifa + Coxim", busca: "kit batente amortecedor", dif: "pro" },
+          { nome: "Jogo de Molas Helicoidais", busca: "molas dianteiras", dif: "pro" },
+          { nome: "Pastilhas de Freio Dianteiras", busca: "pastilha de freio", dif: "medium" },
+          { nome: "Par de Discos de Freio", busca: "disco de freio", dif: "medium" },
+          { nome: "Sapata / Lona de Freio Traseira", busca: "sapata de freio traseira", dif: "pro" },
+          { nome: "Tambor de Freio", busca: "tambor de freio", dif: "medium" },
+          { nome: "Pivô de Suspensão", busca: "pivo de suspensao", dif: "pro" },
+          { nome: "Bieleta da Barra Estabilizadora", busca: "bieleta", dif: "medium" },
+          { nome: "Bucha da Bandeja / Balança", busca: "bucha da bandeja", dif: "pro" },
+          { nome: "Rolamento de Roda", busca: "rolamento de roda", dif: "pro" },
+          { nome: "Pneus", busca: "pneu", dif: "pro" }
+        ]
+      },
+      "carroceria": {
+        nome: "Portas, Vidros, Porta-Malas & Lataria",
+        desc: "Vidros, para-choques, trincos, retrovisores e amortecedores.",
+        pecas: [
+          { nome: "Para-brisa Dianteiro", busca: "parabrisa dianteiro", dif: "pro" },
+          { nome: "Vidro da Porta Dianteira", busca: "vidro porta dianteira", dif: "pro" },
+          { nome: "Máquina de Vidro (Elétrica/Manual)", busca: "maquina de vidro", dif: "medium" },
+          { nome: "Maçaneta Externa", busca: "macaneta externa", dif: "medium" },
+          { nome: "Borracha de Vedação das Portas", busca: "borracha porta", dif: "diy" },
+          { nome: "Amortecedor de Porta-Malas (Pistão)", busca: "amortecedor porta malas", dif: "diy" },
+          { nome: "Retrovisor Externo", busca: "retrovisor", dif: "medium" },
+          { nome: "Para-choque Dianteiro", busca: "parachoque dianteiro", dif: "pro" },
+          { nome: "Para-choque Traseiro", busca: "parachoque traseiro", dif: "pro" }
+        ]
+      },
+      "iluminacao": {
+        nome: "Faróis, Lanternas & Iluminação",
+        desc: "Iluminação principal, faróis de milha e lâmpadas.",
+        pecas: [
+          { nome: "Farol Principal", busca: "farol principal", dif: "medium" },
+          { nome: "Farol de Milha / Neblina", busca: "farol de milha", dif: "medium" },
+          { nome: "Lanterna Traseira", busca: "lanterna traseira", dif: "diy" },
+          { nome: "Lâmpadas H4 / H7", busca: "lampada h4", dif: "diy" },
+          { nome: "Lâmpadas LED para Farol", busca: "kit lampada led h4", dif: "diy" }
+        ]
+      },
+      "cabine": {
+        nome: "Cabine, Ar-Condicionado & Acessórios",
+        desc: "Higienização interna, palhetas e filtros.",
+        pecas: [
+          { nome: "Filtro do Ar-Condicionado (Cabine)", busca: "filtro ar condicionado cabine", dif: "diy" },
+          { nome: "Higienizador de Ar Spray (Granada)", busca: "higienizador ar condicionado", dif: "diy" },
+          { nome: "Palhetas do Limpador de Para-brisa", busca: "palheta limpador parabrisa", dif: "diy" },
+          { nome: "Coifa + Manopla de Câmbio", busca: "coifa manopla cambio", dif: "diy" },
+          { nome: "Jogo de Tapetes Internos", busca: "jogo de tapetes", dif: "diy" }
+        ]
       }
     };
 
-    function registrarCliqueAfiliado(nomePeca, modeloCarro) {
-      if (typeof gtag === 'function') {
-        gtag('event', 'clique_afiliado_ml', {
-          'peca': nomePeca,
-          'veiculo': modeloCarro
+    // Estado da Aplicação
+    let veiculoSelecionado = listaVeiculos[0];
+    let zonaAtualChave = null;
+    let corCarroAtual = "#f8fafc";
+
+    // DOM Elements
+    const vehicleSearch = document.getElementById('vehicle-search');
+    const vehicleDropdown = document.getElementById('vehicle-dropdown');
+    const clearVehicleSearch = document.getElementById('clear-vehicle-search');
+    const carTitle = document.getElementById('car-title');
+    const carBodyBadge = document.getElementById('car-body-badge');
+    const svgContainer = document.getElementById('svg-container');
+    const searchInput = document.getElementById('search-input');
+    
+    const zoneBadge = document.getElementById('zone-badge');
+    const zoneTitle = document.getElementById('zone-title');
+    const zoneDesc = document.getElementById('zone-desc');
+    const zoneCount = document.getElementById('zone-count');
+    const partsList = document.getElementById('parts-list');
+
+    // Mudar cor da lataria do vetor
+    function mudarCorCarro(hex) {
+      corCarroAtual = hex;
+      const bodyPath = document.getElementById('car-body');
+      if (bodyPath) {
+        bodyPath.style.fill = hex;
+      }
+    }
+
+    // Renderiza a lista de autocomplete de carros
+    function renderDropdown(filtro = "") {
+      const termo = filtro.toLowerCase().trim();
+      const filtrados = listaVeiculos.filter(v => v.nome.toLowerCase().includes(termo));
+
+      if (filtrados.length === 0) {
+        vehicleDropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Nenhum veículo encontrado</div>`;
+      } else {
+        vehicleDropdown.innerHTML = filtrados.map(v => `
+          <div class="p-3 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition text-xs font-semibold text-slate-800" onclick="selecionarVeiculo('${v.id}')">
+            <span>${v.nome}</span>
+            <span class="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">${v.body}</span>
+          </div>
+        `).join('');
+      }
+
+      vehicleDropdown.classList.remove('hidden');
+    }
+
+    function selecionarVeiculo(id) {
+      const v = listaVeiculos.find(item => item.id === id);
+      if (!v) return;
+
+      veiculoSelecionado = v;
+      vehicleSearch.value = v.nome;
+      vehicleDropdown.classList.add('hidden');
+      clearVehicleSearch.classList.remove('hidden');
+
+      carTitle.textContent = v.nome;
+      carBodyBadge.textContent = `Carroceria: ${v.body.toUpperCase()}`;
+
+      // Injeta SVG do tipo correto
+      svgContainer.innerHTML = svgTemplates[v.body] || svgTemplates.hatch;
+      mudarCorCarro(corCarroAtual);
+
+      vincularEventosSVG();
+
+      if (zonaAtualChave) {
+        carregarZona(zonaAtualChave);
+        const activeZone = svgContainer.querySelector(`.svg-zone[data-zone="${zonaAtualChave}"]`);
+        if (activeZone) activeZone.classList.add('active');
+      }
+    }
+
+    // Eventos de Busca de Veículo
+    vehicleSearch.addEventListener('focus', () => renderDropdown(vehicleSearch.value));
+    vehicleSearch.addEventListener('input', (e) => {
+      clearVehicleSearch.classList.toggle('hidden', !e.target.value);
+      renderDropdown(e.target.value);
+    });
+    
+    clearVehicleSearch.addEventListener('click', () => {
+      vehicleSearch.value = '';
+      clearVehicleSearch.classList.add('hidden');
+      renderDropdown('');
+      vehicleSearch.focus();
+    });
+
+    // Fechar dropdown ao clicar fora
+    document.addEventListener('click', (e) => {
+      if (!vehicleSearch.contains(e.target) && !vehicleDropdown.contains(e.target)) {
+        vehicleDropdown.classList.add('hidden');
+      }
+    });
+
+    // Vincular cliques nas zonas SVG
+    function vincularEventosSVG() {
+      const svgZones = svgContainer.querySelectorAll('.svg-zone');
+      svgZones.forEach(zone => {
+        zone.addEventListener('click', () => {
+          svgZones.forEach(z => z.classList.remove('active'));
+          zone.classList.add('active');
+          const chave = zone.getAttribute('data-zone');
+          carregarZona(chave);
         });
-      }
+      });
     }
-  </script>
 
-  <!-- LÓGICA DE MONTAGEM DOS CARDS (DESIGN ORIGINAL) -->
-  <!-- 
-    Exemplo de inserção dentro da sua função carregarZona:
-  -->
-  <script>
-    function gerarCardPeca(peca, modeloCarro) {
-      const termoCompleto = `${peca.busca} ${modeloCarro}`;
-      
-      // 1. Gera o link do Mercado Livre já com seu ID de Afiliado
-      const urlML = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoCompleto);
-      
-      // 2. Link de busca do Tutorial no YouTube
-      const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
+    // Renderiza a Lista de Peças
+    function carregarZona(key) {
+      zonaAtualChave = key;
+      const dados = dbPecas[key];
+      if (!dados) return;
 
-      // Tag de dificuldade (opcional)
-      let tagDifHTML = '';
-      if (peca.nivel) {
-        let cor = 'bg-green-100 text-green-700';
-        if (peca.nivel === 'Médio') cor = 'bg-amber-100 text-amber-700';
-        if (peca.nivel === 'Avançado') cor = 'bg-red-100 text-red-700';
-        tagDifHTML = `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cor}">${peca.nivel}</span>`;
-      }
+      // Reseta o filtro rápido de peças ao mudar de setor
+      searchInput.value = '';
 
-      // Card com o visual original claro (bg-slate-50, rounded-2xl)
-      return `
-        <div class="bg-slate-50 border border-slate-200 hover:border-blue-400 p-3.5 rounded-2xl transition group shadow-sm">
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="font-bold text-slate-900 text-xs group-hover:text-blue-700 transition">${peca.nome}</h4>
-            ${tagDifHTML}
+      const modeloCarro = veiculoSelecionado.nome;
+
+      zoneBadge.textContent = "Zona Selecionada";
+      zoneTitle.textContent = dados.nome;
+      zoneDesc.textContent = dados.desc;
+      zoneCount.textContent = `${dados.pecas.length} itens`;
+
+      partsList.innerHTML = '';
+
+      dados.pecas.forEach(peca => {
+        const termoCompleto = `${peca.busca} ${modeloCarro}`;
+        const urlML = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoCompleto)}`;
+        const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
+
+        // Tag de Dificuldade
+        let tagDifHTML = "";
+        if (peca.dif === "diy") {
+          tagDifHTML = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">🟢 DIY (Fácil)</span>`;
+        } else if (peca.dif === "medium") {
+          tagDifHTML = `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full">🟡 Médio</span>`;
+        } else {
+          tagDifHTML = `<span class="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">🔴 Oficina</span>`;
+        }
+
+        const cardHTML = `
+          <div class="bg-slate-50 border border-slate-200 hover:border-blue-400 p-3.5 rounded-2xl transition group shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="font-bold text-slate-900 text-xs group-hover:text-blue-700 transition">${peca.nome}</h4>
+              ${tagDifHTML}
+            </div>
+            <div class="flex gap-2">
+              <a href="${urlML}" target="_blank" rel="noopener noreferrer" 
+                 class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
+                🛒 Mercado Livre
+              </a>
+              <a href="${urlYouTube}" target="_blank" rel="noopener noreferrer" 
+                 class="flex-1 bg-red-100 hover:bg-red-200 text-red-900 border border-red-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
+                ▶ Tutorial
+              </a>
+            </div>
           </div>
-          <div class="flex gap-2">
-            <a href="${urlML}" target="_blank" rel="noopener noreferrer" 
-               onclick="registrarCliqueAfiliado('${peca.nome}', '${modeloCarro}')"
-               class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
-              🛒 Mercado Livre
-            </a>
-            <a href="${urlYouTube}" target="_blank" rel="noopener noreferrer" 
-               class="flex-1 bg-red-100 hover:bg-red-200 text-red-900 border border-red-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
-              ▶ Tutorial
-            </a>
-          </div>
-        </div>
-      `;
+        `;
+        partsList.insertAdjacentHTML('beforeend', cardHTML);
+      });
     }
-  </script>
 
+    // Filtro instantâneo de peças na lista
+    searchInput.addEventListener('input', (e) => {
+      const termo = e.target.value.toLowerCase();
+      const cards = partsList.querySelectorAll('.bg-slate-50');
+      cards.forEach(card => {
+        const texto = card.textContent.toLowerCase();
+        card.style.display = texto.includes(termo) ? 'block' : 'none';
+      });
+    });
+
+    // Inicialização
+    selecionarVeiculo("vw-gol-g2-g4");
+  </script>
 </body>
 </html>
