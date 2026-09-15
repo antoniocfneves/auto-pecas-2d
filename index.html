@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoPeças 2D - Guia Interativo de Manutenção</title>
+  <!-- Tailwind CSS CDN para prototipagem rápida -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Estilos das zonas clicáveis do SVG */
+    .svg-zone {
+      fill: rgba(59, 130, 246, 0.15);
+      stroke: #2563eb;
+      stroke-width: 2;
+      stroke-dasharray: 4;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .svg-zone:hover, .svg-zone.active {
+      fill: rgba(239, 68, 68, 0.4);
+      stroke: #dc2626;
+      stroke-width: 3;
+      stroke-dasharray: 0;
+      filter: drop-shadow(0px 0px 8px rgba(239, 68, 68, 0.6));
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 p-2 rounded-lg text-white font-bold">2D</div>
+        <h1 class="text-xl font-bold tracking-tight">AutoPeças Interativo</h1>
+      </div>
+
+      <!-- Seletor dos 20 Carros -->
+      <div class="flex items-center gap-2 w-full md:w-auto">
+        <label for="car-select" class="text-sm text-slate-400 whitespace-nowrap">Selecione o veículo:</label>
+        <select id="car-select" class="bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+          <optgroup label="Hatches Popular">
+            <option value="vw-gol" selected>VW Gol</option>
+            <option value="fiat-uno">Fiat Uno</option>
+            <option value="fiat-palio">Fiat Palio</option>
+            <option value="gm-celta">Chevrolet Celta</option>
+            <option value="gm-corsa">Chevrolet Corsa / Classic</option>
+            <option value="gm-onix">Chevrolet Onix</option>
+            <option value="hb20">Hyundai HB20</option>
+            <option value="ford-ka">Ford Ka</option>
+            <option value="vw-fox">VW Fox</option>
+            <option value="sandero">Renault Sandero</option>
+            <option value="honda-fit">Honda Fit</option>
+            <option value="kwid">Renault Kwid</option>
+          </optgroup>
+          <optgroup label="Sedans">
+            <option value="corolla">Toyota Corolla</option>
+            <option value="civic">Honda Civic</option>
+            <option value="voyage">VW Voyage</option>
+            <option value="siena">Fiat Siena / Grand Siena</option>
+            <option value="prisma">Chevrolet Prisma</option>
+          </optgroup>
+          <optgroup label="Picapes & SUVs">
+            <option value="strada">Fiat Strada</option>
+            <option value="saveiro">VW Saveiro</option>
+            <option value="renegade">Jeep Renegade / EcoSport</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+    
+    <!-- Área do Carro (Ilustração Interativa SVG) - Ocupa 2 Colunas -->
+    <div class="lg:col-span-2 bg-slate-800/50 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between items-center relative overflow-hidden">
+      <div class="w-full flex justify-between items-center mb-4">
+        <div>
+          <h2 id="current-car-title" class="text-2xl font-bold text-white">VW Gol</h2>
+          <p class="text-xs text-slate-400">Clique sobre uma área do veículo para ver as peças de reposição</p>
+        </div>
+        <span class="bg-blue-500/10 text-blue-400 text-xs px-2.5 py-1 rounded-full border border-blue-500/20">Modelo 2D Vetorial</span>
+      </div>
+
+      <!-- Ilustração SVG com Zonas Clicáveis -->
+      <div class="w-full my-auto flex justify-center py-6">
+        <svg viewBox="0 0 800 350" class="w-full max-w-2xl h-auto drop-shadow-2xl">
+          <!-- Silhueta Genérica de Carro (Hatch) -->
+          <g id="car-silhouette" stroke="#475569" stroke-width="3" fill="#0f172a">
+            <!-- Carroceria -->
+            <path d="M 50,220 C 50,220 70,180 140,170 C 200,160 260,110 350,110 C 480,110 560,120 620,170 C 680,180 750,190 750,230 L 740,260 L 50,260 Z" />
+            <!-- Vidros -->
+            <path d="M 280,120 L 350,120 C 460,120 520,125 570,170 L 260,170 Z" fill="#1e293b" />
+            <!-- Rodas -->
+            <circle cx="170" cy="260" r="45" fill="#1e293b" stroke="#64748b" stroke-width="6" />
+            <circle cx="170" cy="260" r="20" fill="#475569" />
+            <circle cx="610" cy="260" r="45" fill="#1e293b" stroke="#64748b" stroke-width="6" />
+            <circle cx="610" cy="260" r="20" fill="#475569" />
+          </g>
+
+          <!-- Zonas Interativas (Pontos Quentes Clicáveis) -->
+          
+          <!-- ZONA: Motor (Frente) -->
+          <rect x="60" y="175" width="130" height="60" rx="10" class="svg-zone" data-zone="motor">
+            <title>Motor e Injeção</title>
+          </rect>
+          
+          <!-- ZONA: Rodas e Freios (Dianteira) -->
+          <circle cx="170" cy="260" r="50" class="svg-zone" data-zone="freios">
+            <title>Freios e Suspensão Dianteira</title>
+          </circle>
+
+          <!-- ZONA: Faróis / Iluminação -->
+          <path d="M 700,200 L 740,200 L 740,230 L 690,230 Z" class="svg-zone" data-zone="iluminacao">
+            <title>Faróis e Iluminação</title>
+          </path>
+
+          <!-- ZONA: Cabine / Interior -->
+          <rect x="270" y="130" width="220" height="70" rx="10" class="svg-zone" data-zone="cabine">
+            <title>Filtro de Ar / Interior</title>
+          </rect>
+
+          <!-- ZONA: Escapamento (Traseira) -->
+          <rect x="50" y="240" width="50" height="30" rx="5" class="svg-zone" data-zone="escapamento">
+            <title>Escapamento e Exaustão</title>
+          </rect>
+        </svg>
+      </div>
+
+      <!-- Legenda Rápida -->
+      <div class="flex flex-wrap gap-4 justify-center text-xs text-slate-400 mt-2">
+        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500/30 border border-blue-500"></span> Clique nas áreas destacadas em azul</span>
+      </div>
+    </div>
+
+    <!-- Painel Lateral: Detalhes da Zona & Lista de Peças -->
+    <div class="bg-slate-800/50 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+      <div>
+        <div class="border-b border-slate-700/60 pb-4 mb-4">
+          <span id="zone-badge" class="text-xs font-semibold uppercase tracking-wider text-blue-400">Selecione uma área</span>
+          <h3 id="zone-title" class="text-xl font-bold text-white mt-1">Nenhuma zona selecionada</h3>
+          <p id="zone-desc" class="text-xs text-slate-400 mt-1">Clique no motor, rodas, faróis ou cabine no desenho ao lado para carregar as peças.</p>
+        </div>
+
+        <!-- Lista Dinâmica de Peças -->
+        <div id="parts-list" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+          <!-- Item Exemplo Inicial -->
+          <div class="p-4 bg-slate-900/50 border border-slate-800 rounded-xl text-center text-slate-500 text-sm">
+            Aguardando seleção no desenho...
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-700/60 text-xs text-slate-400 text-center">
+        Links atualizados via API de afiliados do Mercado Livre & YouTube.
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Lógica Javascript -->
+  <script>
+    // Banco de Dados Simulado (Exemplo para Protótipo)
+    const dbPeças = {
+      "motor": {
+        nome: "Motor e Sistema de Injeção",
+        descricao: "Componentes fundamentais de ignição, filtragem e lubrificação do motor.",
+        pecas: [
+          { nome: "Vela de Ignição", busca: "vela ignicao" },
+          { nome: "Filtro de Óleo", busca: "filtro de oleo" },
+          { nome: "Correia Dentada", busca: "correia dentada" },
+          { nome: "Filtro de Combustível", busca: "filtro combustivel" },
+          { nome: "Bateria 60A", busca: "bateria 60a" }
+        ]
+      },
+      "freios": {
+        nome: "Freios e Suspensão",
+        descricao: "Segurança ativa, frenagem e amortecimento de impacto.",
+        pecas: [
+          { nome: "Pastilha de Freio", busca: "pastilha de freio" },
+          { nome: "Disco de Freio Dianteiro", busca: "disco de freio" },
+          { nome: "Amortecedor Dianteiro", busca: "amortecedor dianteiro" },
+          { nome: "Kit Coifa e Batente", busca: "kit batente amortecedor" }
+        ]
+      },
+      "iluminacao": {
+        nome: "Faróis e Sinalização",
+        descricao: "Lâmpadas, blocos ópticos e lanternas indicadoras.",
+        pecas: [
+          { nome: "Lâmpada Farol H4 / H7", busca: "lampada farol h4" },
+          { nome: "Bloco do Farol Dianteiro", busca: "farol dianteiro" },
+          { nome: "Lanterna Traseira", busca: "lanterna traseira" }
+        ]
+      },
+      "cabine": {
+        nome: "Filtros do Ar-Condicionado & Cabine",
+        descricao: "Conforto interno e higienização do sistema de ar.",
+        pecas: [
+          { nome: "Filtro de Ar Condicionado (Cabine)", busca: "filtro ar condicionado cabine" },
+          { nome: "Higienizador de Ar-Condicionado", busca: "higienizador ar condicionado spray" },
+          { nome: "Palheta do Limpador de Pára-brisa", busca: "palheta limpador parabrisa" }
+        ]
+      },
+      "escapamento": {
+        nome: "Sistema de Exaustão",
+        descricao: "Redução de ruídos e filtragem de emissão de gases.",
+        pecas: [
+          { nome: "Silencioso Traseiro", busca: "escapamento silencioso traseiro" },
+          { nome: "Catalisador", busca: "catalisador" },
+          { nome: "Borracha do Escapamento", busca: "coxim borracha escapamento" }
+        ]
+      }
+    };
+
+    // Referências DOM
+    const carSelect = document.getElementById('car-select');
+    const currentCarTitle = document.getElementById('current-car-title');
+    const zoneBadge = document.getElementById('zone-badge');
+    const zoneTitle = document.getElementById('zone-title');
+    const zoneDesc = document.getElementById('zone-desc');
+    const partsList = document.getElementById('parts-list');
+    const svgZones = document.querySelectorAll('.svg-zone');
+
+    let carroAtualNome = "VW Gol";
+
+    // Atualiza nome do carro selecionado
+    carSelect.addEventListener('change', (e) => {
+      carroAtualNome = e.target.options[e.target.selectedIndex].text;
+      currentCarTitle.textContent = carroAtualNome;
+      // Se houver uma zona ativa, recarrega os links com o novo carro
+      const activeZone = document.querySelector('.svg-zone.active');
+      if (activeZone) {
+        carregarZona(activeZone.getAttribute('data-zone'));
+      }
+    });
+
+    // Clique nas Zonas do SVG
+    svgZones.forEach(zone => {
+      zone.addEventListener('click', () => {
+        svgZones.forEach(z => z.classList.remove('active'));
+        zone.classList.add('active');
+        const keyZona = zone.getAttribute('data-zone');
+        carregarZona(keyZona);
+      });
+    });
+
+    // Função para renderizar as peças na tela
+    function carregarZona(key) {
+      const dados = dbPeças[key];
+      if (!dados) return;
+
+      zoneBadge.textContent = "Zona Selecionada";
+      zoneTitle.textContent = dados.nome;
+      zoneDesc.textContent = dados.descricao;
+
+      partsList.innerHTML = '';
+
+      dados.pecas.forEach(peca => {
+        // Monta os termos de busca com o modelo do carro selecionado
+        const termoCompleto = `${peca.busca} ${carroAtualNome}`;
+        const urlMercadoLivre = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoCompleto)}`;
+        const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
+
+        const itemHTML = `
+          <div class="bg-slate-900/80 border border-slate-700/80 hover:border-blue-500/50 rounded-xl p-3.5 transition">
+            <h4 class="font-semibold text-slate-200 text-sm mb-2">${peca.nome}</h4>
+            <div class="flex gap-2">
+              <a href="${urlMercadoLivre}" target="_blank" rel="noopener noreferrer" 
+                 class="flex-1 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs py-2 px-3 rounded-lg text-center font-medium transition flex items-center justify-center gap-1">
+                🛒 Mercado Livre
+              </a>
+              <a href="${urlYouTube}" target="_blank" rel="noopener noreferrer" 
+                 class="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs py-2 px-3 rounded-lg text-center font-medium transition flex items-center justify-center gap-1">
+                ▶ Ver Tutorial
+              </a>
+            </div>
+          </div>
+        `;
+        partsList.insertAdjacentHTML('beforeend', itemHTML);
+      });
+    }
+  </script>
+</body>
+</html>
