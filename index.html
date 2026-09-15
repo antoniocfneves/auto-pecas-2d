@@ -8,7 +8,7 @@
   <style>
     /* Estilos das zonas clicáveis no SVG */
     .svg-zone {
-      fill: rgba(37, 99, 235, 0.05);
+      fill: rgba(37, 99, 235, 0.06);
       stroke: #2563eb;
       stroke-width: 2;
       stroke-dasharray: 4;
@@ -16,18 +16,17 @@
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .svg-zone:hover, .svg-zone.active {
-      fill: rgba(220, 38, 38, 0.12);
+      fill: rgba(220, 38, 38, 0.15);
       stroke: #dc2626;
       stroke-width: 3;
       stroke-dasharray: 0;
-      filter: drop-shadow(0px 2px 8px rgba(220, 38, 38, 0.25));
+      filter: drop-shadow(0px 2px 8px rgba(220, 38, 38, 0.3));
     }
     .car-body-path {
       transition: fill 0.4s ease;
     }
     .hotspot-pin {
       animation: pulse-ring 2s infinite;
-      cursor: pointer;
     }
     @keyframes pulse-ring {
       0% { transform: scale(0.95); opacity: 0.9; }
@@ -58,14 +57,14 @@
       <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
         <div class="relative w-full sm:w-80">
           <div class="relative">
-            <input type="text" id="vehicle-search" placeholder="Digite o carro (ex: Corsa, Nivus, Gol)..." 
+            <input type="text" id="vehicle-search" placeholder="Buscar por marca ou modelo..." 
                    autocomplete="off"
                    class="w-full bg-slate-50 border border-slate-300 text-xs font-semibold rounded-xl pl-9 pr-8 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition">
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <button id="clear-vehicle-search" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
           </div>
 
-          <div id="vehicle-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-100"></div>
+          <div id="vehicle-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-72 overflow-y-auto z-50"></div>
         </div>
 
         <div class="relative w-full sm:w-64">
@@ -80,13 +79,13 @@
   <!-- Conteúdo Principal -->
   <main class="max-w-7xl mx-auto px-4 py-6 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
     
-    <!-- Painel Principal 2D (8 Colunas) -->
+    <!-- Painel Principal 2D -->
     <div class="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[480px]">
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 border-b border-slate-100 pb-4">
         <div>
           <span id="car-body-badge" class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">Carroceria: Hatch</span>
-          <h2 id="car-title" class="text-2xl font-black text-slate-900 mt-1">VW Gol G2 / G3 / G4</h2>
+          <h2 id="car-title" class="text-2xl font-black text-slate-900 mt-1">Volkswagen Gol G2 / G3 / G4</h2>
           <p class="text-xs text-slate-500">Clique nas partes tracejadas do desenho para visualizar o catálogo.</p>
         </div>
 
@@ -112,7 +111,7 @@
       </div>
     </div>
 
-    <!-- Painel Lateral / Lista de Peças (4 Colunas) -->
+    <!-- Painel Lateral / Lista de Peças -->
     <div class="lg:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between">
       <div>
         <div class="border-b border-slate-100 pb-4 mb-4">
@@ -139,9 +138,7 @@
   </main>
 
   <script>
-    // =================================================================
-    // CONFIGURAÇÃO DE AFILIADOS (MERCADO LIVRE)
-    // =================================================================
+    // Configuração de Afiliados Mercado Livre
     const AFILIADOS_CONFIG = {
       mercadolivre: {
         ativo: true,
@@ -158,106 +155,115 @@
       }
     };
 
-    // Base de Veículos
+    // Base de Veículos com atributo 'marca'
     const listaVeiculos = [
-      { id: "vw-gol-g2-g4", nome: "VW Gol G2 / G3 / G4 (1996 - 2013)", body: "hatch" },
-      { id: "vw-gol-g5-g8", nome: "VW Gol G5 / G6 / G7 / G8 (2008 - 2023)", body: "hatch" },
-      { id: "vw-polo", nome: "VW Polo / Novo Polo (2002 - Presente)", body: "hatch" },
-      { id: "fiat-uno-mille", nome: "Fiat Uno Mille (1984 - 2013)", body: "hatch" },
-      { id: "fiat-uno-vivace", nome: "Fiat Uno Vivace / Novo Uno (2010 - 2021)", body: "hatch" },
-      { id: "fiat-palio-g1-g4", nome: "Fiat Palio G1 / G2 / G3 / G4 (1996 - 2017)", body: "hatch" },
-      { id: "fiat-argo", nome: "Fiat Argo (2017 - Presente)", body: "hatch" },
-      { id: "gm-celta", nome: "Chevrolet Celta (2000 - 2015)", body: "hatch" },
-      { id: "gm-corsa-classic", nome: "Chevrolet Corsa / Wind (1994 - 2012)", body: "hatch" },
-      { id: "gm-onix-g1", nome: "Chevrolet Onix G1 (2012 - 2019)", body: "hatch" },
-      { id: "gm-onix-g2", nome: "Chevrolet Onix G2 Turbo (2019 - Presente)", body: "hatch" },
-      { id: "hb20-g1", nome: "Hyundai HB20 G1 (2012 - 2019)", body: "hatch" },
-      { id: "hb20-g2", nome: "Hyundai HB20 G2 (2019 - Presente)", body: "hatch" },
-      { id: "ford-ka-g3", nome: "Ford Ka G3 (2014 - 2021)", body: "hatch" },
-      { id: "renault-kwid", nome: "Renault Kwid (2017 - Presente)", body: "hatch" },
-      { id: "peugeot-208", nome: "Peugeot 208 (2013 - Presente)", body: "hatch" },
-      { id: "corolla-g9-g10", nome: "Toyota Corolla (2008 - 2019)", body: "sedan" },
-      { id: "corolla-g11", nome: "Toyota Corolla Hybrid / Flex (2020 - Presente)", body: "sedan" },
-      { id: "civic-g8-g9", nome: "Honda Civic G8 / G9 / G10 (2006 - 2021)", body: "sedan" },
-      { id: "vw-voyage", nome: "VW Voyage G5 / G6 / G7 (2008 - 2023)", body: "sedan" },
-      { id: "gm-prisma", nome: "Chevrolet Prisma / Joy Plus (2006 - 2021)", body: "sedan" },
-      { id: "gm-cobalt", nome: "Chevrolet Cobalt (2011 - 2020)", body: "sedan" },
-      { id: "fiat-cronos", nome: "Fiat Cronos (2018 - Presente)", body: "sedan" },
-      { id: "nissan-versa", nome: "Nissan Versa / V-Drive (2011 - Presente)", body: "sedan" },
-      { id: "fiat-strada-g1", nome: "Fiat Strada G1 (1998 - 2020)", body: "picape" },
-      { id: "fiat-strada-g2", nome: "Fiat Strada Nova (2020 - Presente)", body: "picape" },
-      { id: "vw-saveiro", nome: "VW Saveiro G5 / G6 / G7 (2009 - Presente)", body: "picape" },
-      { id: "toyota-hilux", nome: "Toyota Hilux (2006 - Presente)", body: "picape" },
-      { id: "vw-nivus", nome: "VW Nivus Turbo (2020 - Presente)", body: "suv" },
-      { id: "vw-tcross", nome: "VW T-Cross (2019 - Presente)", body: "suv" },
-      { id: "renegade", nome: "Jeep Renegade (2015 - Presente)", body: "suv" },
-      { id: "compass", nome: "Jeep Compass (2016 - Presente)", body: "suv" },
-      { id: "ecosport", nome: "Ford EcoSport (2003 - 2021)", body: "suv" },
-      { id: "hyundai-creta", nome: "Hyundai Creta (2016 - Presente)", body: "suv" },
-      { id: "nissan-kicks", nome: "Nissan Kicks (2016 - Presente)", body: "suv" }
+      { id: "vw-gol-g2-g4", marca: "Volkswagen", nome: "Gol G2 / G3 / G4 (1996 - 2013)", body: "hatch" },
+      { id: "vw-gol-g5-g8", marca: "Volkswagen", nome: "Gol G5 / G6 / G7 / G8 (2008 - 2023)", body: "hatch" },
+      { id: "vw-polo", marca: "Volkswagen", nome: "Polo / Novo Polo (2002 - Presente)", body: "hatch" },
+      { id: "vw-voyage", marca: "Volkswagen", nome: "Voyage G5 / G6 / G7 (2008 - 2023)", body: "sedan" },
+      { id: "vw-saveiro", marca: "Volkswagen", nome: "Saveiro G5 / G6 / G7 (2009 - Presente)", body: "picape" },
+      { id: "vw-nivus", marca: "Volkswagen", nome: "Nivus Turbo (2020 - Presente)", body: "suv" },
+      { id: "vw-tcross", marca: "Volkswagen", nome: "T-Cross (2019 - Presente)", body: "suv" },
+      
+      { id: "gm-celta", marca: "Chevrolet", nome: "Celta (2000 - 2015)", body: "hatch" },
+      { id: "gm-corsa-classic", marca: "Chevrolet", nome: "Corsa / Wind (1994 - 2012)", body: "hatch" },
+      { id: "gm-onix-g1", marca: "Chevrolet", nome: "Onix G1 (2012 - 2019)", body: "hatch" },
+      { id: "gm-onix-g2", marca: "Chevrolet", nome: "Onix G2 Turbo (2019 - Presente)", body: "hatch" },
+      { id: "gm-prisma", marca: "Chevrolet", nome: "Prisma / Joy Plus (2006 - 2021)", body: "sedan" },
+      { id: "gm-cobalt", marca: "Chevrolet", nome: "Cobalt (2011 - 2020)", body: "sedan" },
+
+      { id: "fiat-uno-mille", marca: "Fiat", nome: "Uno Mille (1984 - 2013)", body: "hatch" },
+      { id: "fiat-uno-vivace", marca: "Fiat", nome: "Uno Vivace / Novo Uno (2010 - 2021)", body: "hatch" },
+      { id: "fiat-palio-g1-g4", marca: "Fiat", nome: "Palio G1 / G2 / G3 / G4 (1996 - 2017)", body: "hatch" },
+      { id: "fiat-argo", marca: "Fiat", nome: "Argo (2017 - Presente)", body: "hatch" },
+      { id: "fiat-cronos", marca: "Fiat", nome: "Cronos (2018 - Presente)", body: "sedan" },
+      { id: "fiat-strada-g1", marca: "Fiat", nome: "Strada G1 (1998 - 2020)", body: "picape" },
+      { id: "fiat-strada-g2", marca: "Fiat", nome: "Strada Nova (2020 - Presente)", body: "picape" },
+
+      { id: "hb20-g1", marca: "Hyundai", nome: "HB20 G1 (2012 - 2019)", body: "hatch" },
+      { id: "hb20-g2", marca: "Hyundai", nome: "HB20 G2 (2019 - Presente)", body: "hatch" },
+      { id: "hyundai-creta", marca: "Hyundai", nome: "Creta (2016 - Presente)", body: "suv" },
+
+      { id: "ford-ka-g3", marca: "Ford", nome: "Ka G3 (2014 - 2021)", body: "hatch" },
+      { id: "ecosport", marca: "Ford", nome: "EcoSport (2003 - 2021)", body: "suv" },
+
+      { id: "corolla-g9-g10", marca: "Toyota", nome: "Corolla (2008 - 2019)", body: "sedan" },
+      { id: "corolla-g11", marca: "Toyota", nome: "Corolla Hybrid / Flex (2020 - Presente)", body: "sedan" },
+      { id: "toyota-hilux", marca: "Toyota", nome: "Hilux (2006 - Presente)", body: "picape" },
+
+      { id: "civic-g8-g9", marca: "Honda", nome: "Civic G8 / G9 / G10 (2006 - 2021)", body: "sedan" },
+
+      { id: "nissan-versa", marca: "Nissan", nome: "Versa / V-Drive (2011 - Presente)", body: "sedan" },
+      { id: "nissan-kicks", marca: "Nissan", nome: "Kicks (2016 - Presente)", body: "suv" },
+
+      { id: "renegade", marca: "Jeep", nome: "Renegade (2015 - Presente)", body: "suv" },
+      { id: "compass", marca: "Jeep", nome: "Compass (2016 - Presente)", body: "suv" },
+
+      { id: "renault-kwid", marca: "Renault", nome: "Kwid (2017 - Presente)", body: "hatch" },
+      { id: "peugeot-208", marca: "Peugeot", nome: "208 (2013 - Presente)", body: "hatch" }
     ];
 
-    // Vetores SVG
+    // SVGs Alinhados
     const svgTemplates = {
       hatch: `
         <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
           <g stroke="#94a3b8" stroke-width="3">
-            <path id="car-body" class="car-body-path" d="M 60,200 C 60,200 80,160 150,150 C 210,140 270,90 360,90 C 490,90 570,100 630,150 C 690,160 740,210 L 730,240 L 60,240 Z" fill="#f8fafc" />
-            <path d="M 290,100 L 360,100 C 470,100 530,105 580,150 L 270,150 Z" fill="#e2e8f0" />
-            <circle cx="170" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
-            <circle cx="600" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <path id="car-body" class="car-body-path" d="M 80,210 C 80,160 130,130 220,120 C 300,70 460,70 530,125 C 600,135 680,155 720,195 L 720,225 L 640,225 A 50,50 0 0,0 540,225 L 270,225 A 50,50 0 0,0 170,225 L 80,225 Z" fill="#f8fafc" />
+            <path d="M 240,125 C 310,80 450,80 515,125 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+            <circle cx="220" cy="225" r="38" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
+            <circle cx="590" cy="225" r="38" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
           </g>
-          <rect x="570" y="155" width="120" height="60" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
-          <circle cx="170" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <circle cx="600" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <path d="M 690,175 L 730,175 L 730,205 L 680,205 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
-          <rect x="280" y="95" width="220" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
-          <rect x="220" y="150" width="90" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+          <rect x="540" y="125" width="160" height="85" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="220" cy="225" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Traseira</title></circle>
+          <circle cx="590" cy="225" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Dianteira</title></circle>
+          <path d="M 685,175 L 725,175 L 725,205 L 685,205 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="230" y="75" width="280" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="260" y="145" width="220" height="65" rx="10" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
         </svg>`,
       sedan: `
         <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
           <g stroke="#94a3b8" stroke-width="3">
-            <path id="car-body" class="car-body-path" d="M 40,210 L 110,200 C 170,190 240,100 350,100 L 530,100 C 600,140 650,190 760,195 L 750,240 L 40,240 Z" fill="#f8fafc" />
-            <path d="M 260,110 L 510,110 L 580,160 L 240,160 Z" fill="#e2e8f0" />
-            <circle cx="170" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
-            <circle cx="610" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <path id="car-body" class="car-body-path" d="M 50,210 L 140,200 C 200,190 260,85 350,85 L 500,85 C 570,130 630,155 740,195 L 740,225 L 640,225 A 50,50 0 0,0 540,225 L 260,225 A 50,50 0 0,0 160,225 L 50,225 Z" fill="#f8fafc" />
+            <path d="M 270,105 L 480,105 L 545,145 L 230,145 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+            <circle cx="210" cy="225" r="38" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
+            <circle cx="590" cy="225" r="38" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
           </g>
-          <rect x="580" y="165" width="130" height="55" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
-          <circle cx="610" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <circle cx="170" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <path d="M 720,185 L 750,185 L 750,210 L 710,210 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
-          <rect x="270" y="115" width="240" height="60" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
-          <rect x="200" y="150" width="70" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+          <rect x="550" y="130" width="165" height="80" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="210" cy="225" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Traseira</title></circle>
+          <circle cx="590" cy="225" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Dianteira</title></circle>
+          <path d="M 700,175 L 745,175 L 745,210 L 700,210 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="250" y="90" width="270" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="270" y="155" width="230" height="55" rx="10" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
         </svg>`,
       picape: `
         <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
           <g stroke="#94a3b8" stroke-width="3">
-            <path id="car-body" class="car-body-path" d="M 50,240 L 50,180 L 350,180 L 400,100 L 550,100 L 630,160 L 750,170 L 740,240 Z" fill="#f8fafc" />
-            <path d="M 410,110 L 540,110 L 590,160 L 410,160 Z" fill="#e2e8f0" />
-            <circle cx="180" cy="240" r="45" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
-            <circle cx="610" cy="240" r="45" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <path id="car-body" class="car-body-path" d="M 50,225 L 50,165 L 360,165 L 410,95 L 540,95 L 610,155 L 740,165 L 740,225 L 640,225 A 50,50 0 0,0 540,225 L 260,225 A 50,50 0 0,0 160,225 Z" fill="#f8fafc" />
+            <path d="M 420,105 L 525,105 L 585,155 L 420,155 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+            <circle cx="210" cy="225" r="40" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
+            <circle cx="590" cy="225" r="40" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
           </g>
-          <rect x="590" y="155" width="120" height="60" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
-          <circle cx="610" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <circle cx="180" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <path d="M 710,170 L 740,170 L 740,200 L 700,200 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
-          <rect x="410" y="115" width="150" height="60" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
-          <rect x="340" y="160" width="60" height="50" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+          <rect x="560" y="130" width="160" height="80" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="210" cy="225" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Traseira</title></circle>
+          <circle cx="590" cy="225" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Dianteira</title></circle>
+          <path d="M 700,165 L 740,165 L 740,200 L 700,200 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="400" y="95" width="160" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="300" y="160" width="90" height="55" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Caçamba</title></rect>
         </svg>`,
       suv: `
         <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
           <g stroke="#94a3b8" stroke-width="3">
-            <path id="car-body" class="car-body-path" d="M 60,240 L 60,150 L 180,140 L 290,80 L 580,80 L 660,140 L 740,150 L 740,240 Z" fill="#f8fafc" />
-            <path d="M 300,90 L 570,90 L 630,140 L 300,140 Z" fill="#e2e8f0" />
-            <circle cx="180" cy="240" r="48" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
-            <circle cx="600" cy="240" r="48" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
+            <path id="car-body" class="car-body-path" d="M 60,225 L 60,145 L 170,135 L 260,75 L 540,75 L 620,135 L 730,145 L 730,225 L 650,225 A 52,52 0 0,0 540,225 L 260,225 A 52,52 0 0,0 150,225 Z" fill="#f8fafc" />
+            <path d="M 275,85 L 525,85 L 595,135 L 275,135 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+            <circle cx="205" cy="225" r="42" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
+            <circle cx="595" cy="225" r="42" fill="#cbd5e1" stroke="#475569" stroke-width="6" />
           </g>
-          <rect x="590" y="145" width="120" height="65" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
-          <circle cx="600" cy="240" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <circle cx="180" cy="240" r="52" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
-          <path d="M 700,150 L 730,150 L 730,180 L 690,180 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
-          <rect x="300" y="90" width="260" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
-          <rect x="220" y="145" width="70" height="55" rx="8" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
+          <rect x="560" y="125" width="155" height="85" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
+          <circle cx="205" cy="225" r="54" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Traseira</title></circle>
+          <circle cx="595" cy="225" r="54" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão Dianteira</title></circle>
+          <path d="M 690,145 L 730,145 L 730,180 L 690,180 Z" class="svg-zone" data-zone="iluminacao"><title>Faróis & Iluminação</title></path>
+          <rect x="260" y="80" width="270" height="65" rx="10" class="svg-zone" data-zone="carroceria"><title>Portas & Vidros</title></rect>
+          <rect x="270" y="145" width="220" height="65" rx="10" class="svg-zone" data-zone="cabine"><title>Cabine e Ar</title></rect>
         </svg>`
     };
 
@@ -350,7 +356,6 @@
     let zonaAtualChave = null;
     let corCarroAtual = "#f8fafc";
 
-    // DOM Elements
     const vehicleSearch = document.getElementById('vehicle-search');
     const vehicleDropdown = document.getElementById('vehicle-dropdown');
     const clearVehicleSearch = document.getElementById('clear-vehicle-search');
@@ -365,7 +370,6 @@
     const zoneCount = document.getElementById('zone-count');
     const partsList = document.getElementById('parts-list');
 
-    // Mudar cor da lataria
     function mudarCorCarro(hex) {
       corCarroAtual = hex;
       const bodyPath = document.getElementById('car-body');
@@ -374,22 +378,44 @@
       }
     }
 
-    // Renderiza a lista de autocomplete de carros
+    // Renderiza a lista agrupando veículos por marca
     function renderDropdown(filtro = "") {
       const termo = filtro.toLowerCase().trim();
-      const filtrados = listaVeiculos.filter(v => v.nome.toLowerCase().includes(termo));
+      const filtrados = listaVeiculos.filter(v => 
+        v.nome.toLowerCase().includes(termo) || v.marca.toLowerCase().includes(termo)
+      );
 
       if (filtrados.length === 0) {
-        vehicleDropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">Nenhum veículo encontrado</div>`;
-      } else {
-        vehicleDropdown.innerHTML = filtrados.map(v => `
-          <div class="p-3 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition text-xs font-semibold text-slate-800" onclick="selecionarVeiculo('${v.id}')">
-            <span>${v.nome}</span>
-            <span class="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">${v.body}</span>
-          </div>
-        `).join('');
+        vehicleDropdown.innerHTML = `<div class="p-4 text-xs text-slate-400 text-center">Nenhum veículo encontrado</div>`;
+        vehicleDropdown.classList.remove('hidden');
+        return;
       }
 
+      // Agrupa os itens filtrados por marca
+      const agrupados = filtrados.reduce((acc, v) => {
+        if (!acc[v.marca]) acc[v.marca] = [];
+        acc[v.marca].push(v);
+        return acc;
+      }, {});
+
+      let html = '';
+      for (const [marca, carros] of Object.entries(agrupados)) {
+        html += `
+          <div class="bg-slate-100/90 backdrop-blur px-3 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky top-0 border-y border-slate-200">
+            ${marca}
+          </div>
+        `;
+        carros.forEach(v => {
+          html += `
+            <div class="p-3 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition text-xs font-semibold text-slate-800" onclick="selecionarVeiculo('${v.id}')">
+              <span>${v.nome}</span>
+              <span class="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">${v.body}</span>
+            </div>
+          `;
+        });
+      }
+
+      vehicleDropdown.innerHTML = html;
       vehicleDropdown.classList.remove('hidden');
     }
 
@@ -398,14 +424,13 @@
       if (!v) return;
 
       veiculoSelecionado = v;
-      vehicleSearch.value = v.nome;
+      vehicleSearch.value = `${v.marca} ${v.nome}`;
       vehicleDropdown.classList.add('hidden');
       clearVehicleSearch.classList.remove('hidden');
 
-      carTitle.textContent = v.nome;
+      carTitle.textContent = `${v.marca} ${v.nome}`;
       carBodyBadge.textContent = `Carroceria: ${v.body.toUpperCase()}`;
 
-      // Injeta o SVG correto
       svgContainer.innerHTML = svgTemplates[v.body] || svgTemplates.hatch;
       mudarCorCarro(corCarroAtual);
 
@@ -418,7 +443,6 @@
       }
     }
 
-    // Eventos de Busca de Veículo
     vehicleSearch.addEventListener('focus', () => renderDropdown(vehicleSearch.value));
     vehicleSearch.addEventListener('input', (e) => {
       clearVehicleSearch.classList.toggle('hidden', !e.target.value);
@@ -438,7 +462,6 @@
       }
     });
 
-    // Vincular cliques nas zonas SVG
     function vincularEventosSVG() {
       const svgZones = svgContainer.querySelectorAll('.svg-zone');
       svgZones.forEach(zone => {
@@ -451,15 +474,13 @@
       });
     }
 
-    // Renderiza a Lista de Peças gerando links de Afiliado automaticamente
     function carregarZona(key) {
       zonaAtualChave = key;
       const dados = dbPecas[key];
       if (!dados) return;
 
       searchInput.value = '';
-
-      const modeloCarro = veiculoSelecionado.nome;
+      const modeloCarro = `${veiculoSelecionado.marca} ${veiculoSelecionado.nome}`;
 
       zoneBadge.textContent = "Zona Selecionada";
       zoneTitle.textContent = dados.nome;
@@ -470,7 +491,6 @@
 
       dados.pecas.forEach(peca => {
         const termoCompleto = `${peca.busca} ${modeloCarro}`;
-        // Geração do Link com Tag de Afiliado
         const urlML = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoCompleto);
         const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
 
@@ -505,7 +525,6 @@
       });
     }
 
-    // Filtro instantâneo de peças na lista
     searchInput.addEventListener('input', (e) => {
       const termo = e.target.value.toLowerCase();
       const cards = partsList.querySelectorAll('.bg-slate-50');
