@@ -6,7 +6,7 @@
   <title>AutoPeças 2D - Guia Interativo de Peças e Manutenção</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Estilos das zonas clicáveis no SVG (Tema Claro) */
+    /* Estilos das zonas clicáveis no SVG */
     .svg-zone {
       fill: rgba(37, 99, 235, 0.05);
       stroke: #2563eb;
@@ -25,7 +25,6 @@
     .car-body-path {
       transition: fill 0.4s ease;
     }
-    /* Animação Pulsante dos Hotspots */
     .hotspot-pin {
       animation: pulse-ring 2s infinite;
       cursor: pointer;
@@ -35,7 +34,6 @@
       50% { transform: scale(1.1); opacity: 1; }
       100% { transform: scale(0.95); opacity: 0.9; }
     }
-    /* Scrollbar Personalizada */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
@@ -56,10 +54,8 @@
         </div>
       </div>
 
-      <!-- Pesquisa de Carros Inteligente & Busca de Peças -->
+      <!-- Pesquisa de Carros & Busca de Peças -->
       <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-        
-        <!-- Autocomplete / Busca Rápida de Veículos -->
         <div class="relative w-full sm:w-80">
           <div class="relative">
             <input type="text" id="vehicle-search" placeholder="Digite o carro (ex: Corsa, Nivus, Gol)..." 
@@ -69,19 +65,14 @@
             <button id="clear-vehicle-search" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
           </div>
 
-          <!-- Dropdown da lista de carros filtrada -->
-          <div id="vehicle-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-100">
-            <!-- Injetado via JS -->
-          </div>
+          <div id="vehicle-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto z-50 divide-y divide-slate-100"></div>
         </div>
 
-        <!-- Campo de Pesquisa Rápida de Peça -->
         <div class="relative w-full sm:w-64">
           <input type="text" id="search-input" placeholder="Filtrar peça atual (ex: embreagem)..." 
                  class="w-full bg-slate-50 border border-slate-300 text-xs rounded-xl pl-9 pr-3 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition">
           <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
         </div>
-
       </div>
     </div>
   </header>
@@ -92,7 +83,6 @@
     <!-- Painel Principal 2D (8 Colunas) -->
     <div class="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[480px]">
       
-      <!-- Topo do Card (Info do Carro + Seletor de Cores) -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 border-b border-slate-100 pb-4">
         <div>
           <span id="car-body-badge" class="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">Carroceria: Hatch</span>
@@ -100,7 +90,6 @@
           <p class="text-xs text-slate-500">Clique nas partes tracejadas do desenho para visualizar o catálogo.</p>
         </div>
 
-        <!-- Seletor de Cores da Lataria -->
         <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-200 self-start sm:self-auto">
           <span class="text-[11px] font-bold text-slate-400 pl-1">Cor:</span>
           <button onclick="mudarCorCarro('#f8fafc')" class="w-5 h-5 rounded-full bg-white border border-slate-300 shadow-sm hover:scale-110 transition" title="Branco"></button>
@@ -111,12 +100,8 @@
         </div>
       </div>
 
-      <!-- Container do Vetor SVG -->
-      <div id="svg-container" class="w-full my-auto flex justify-center py-6 relative">
-        <!-- O SVG dinâmico entra aqui via JavaScript -->
-      </div>
+      <div id="svg-container" class="w-full my-auto flex justify-center py-6 relative"></div>
 
-      <!-- Rodapé / Legendas -->
       <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-4 gap-2 z-10">
         <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 hotspot-pin"></span> Selecione um setor no mapa 2D</span>
         <div class="flex items-center gap-3 text-[11px]">
@@ -139,7 +124,6 @@
           <p id="zone-desc" class="text-xs text-slate-500 mt-1">Clique no motor, rodas, portas, vidros ou faróis no desenho ao lado.</p>
         </div>
 
-        <!-- Lista de Peças -->
         <div id="parts-list" class="space-y-3 max-h-[440px] overflow-y-auto pr-1">
           <div class="p-8 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
             Aguardando seleção no desenho 2D...
@@ -155,9 +139,27 @@
   </main>
 
   <script>
-    // Base Ampliada de Veículos
+    // =================================================================
+    // CONFIGURAÇÃO DE AFILIADOS (MERCADO LIVRE)
+    // =================================================================
+    const AFILIADOS_CONFIG = {
+      mercadolivre: {
+        ativo: true,
+        trackingParams: "matt_tool=60782260&matt_word=antoniocfn12",
+        gerarLink: function(entrada) {
+          if (!entrada) return "";
+          if (entrada.startsWith("http://") || entrada.startsWith("https://")) {
+            const separador = entrada.includes("?") ? "&" : "?";
+            return `${entrada}${separador}${this.trackingParams}`;
+          }
+          const urlBase = `https://lista.mercadolivre.com.br/${encodeURIComponent(entrada)}`;
+          return `${urlBase}?${this.trackingParams}`;
+        }
+      }
+    };
+
+    // Base de Veículos
     const listaVeiculos = [
-      // Hatches
       { id: "vw-gol-g2-g4", nome: "VW Gol G2 / G3 / G4 (1996 - 2013)", body: "hatch" },
       { id: "vw-gol-g5-g8", nome: "VW Gol G5 / G6 / G7 / G8 (2008 - 2023)", body: "hatch" },
       { id: "vw-polo", nome: "VW Polo / Novo Polo (2002 - Presente)", body: "hatch" },
@@ -174,8 +176,6 @@
       { id: "ford-ka-g3", nome: "Ford Ka G3 (2014 - 2021)", body: "hatch" },
       { id: "renault-kwid", nome: "Renault Kwid (2017 - Presente)", body: "hatch" },
       { id: "peugeot-208", nome: "Peugeot 208 (2013 - Presente)", body: "hatch" },
-      
-      // Sedans
       { id: "corolla-g9-g10", nome: "Toyota Corolla (2008 - 2019)", body: "sedan" },
       { id: "corolla-g11", nome: "Toyota Corolla Hybrid / Flex (2020 - Presente)", body: "sedan" },
       { id: "civic-g8-g9", nome: "Honda Civic G8 / G9 / G10 (2006 - 2021)", body: "sedan" },
@@ -184,14 +184,10 @@
       { id: "gm-cobalt", nome: "Chevrolet Cobalt (2011 - 2020)", body: "sedan" },
       { id: "fiat-cronos", nome: "Fiat Cronos (2018 - Presente)", body: "sedan" },
       { id: "nissan-versa", nome: "Nissan Versa / V-Drive (2011 - Presente)", body: "sedan" },
-
-      // Picapes
       { id: "fiat-strada-g1", nome: "Fiat Strada G1 (1998 - 2020)", body: "picape" },
       { id: "fiat-strada-g2", nome: "Fiat Strada Nova (2020 - Presente)", body: "picape" },
       { id: "vw-saveiro", nome: "VW Saveiro G5 / G6 / G7 (2009 - Presente)", body: "picape" },
       { id: "toyota-hilux", nome: "Toyota Hilux (2006 - Presente)", body: "picape" },
-
-      // SUVs
       { id: "vw-nivus", nome: "VW Nivus Turbo (2020 - Presente)", body: "suv" },
       { id: "vw-tcross", nome: "VW T-Cross (2019 - Presente)", body: "suv" },
       { id: "renegade", nome: "Jeep Renegade (2015 - Presente)", body: "suv" },
@@ -201,7 +197,7 @@
       { id: "nissan-kicks", nome: "Nissan Kicks (2016 - Presente)", body: "suv" }
     ];
 
-    // SVG Templates por tipo de carroceria com rotulagem de cores e zonas ajustadas
+    // Vetores SVG
     const svgTemplates = {
       hatch: `
         <svg viewBox="0 0 800 320" class="w-full max-w-2xl h-auto drop-shadow-md">
@@ -211,7 +207,6 @@
             <circle cx="170" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
             <circle cx="600" cy="240" r="42" fill="#cbd5e1" stroke="#64748b" stroke-width="6" />
           </g>
-          <!-- Zonas Clicáveis -->
           <rect x="570" y="155" width="120" height="60" rx="12" class="svg-zone" data-zone="motor"><title>Motor & Câmbio</title></rect>
           <circle cx="170" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
           <circle cx="600" cy="240" r="50" class="svg-zone" data-zone="roda"><title>Rodas & Suspensão</title></circle>
@@ -266,7 +261,7 @@
         </svg>`
     };
 
-    // Banco de Peças com Classificação de Dificuldade
+    // Banco de Peças
     const dbPecas = {
       "motor": {
         nome: "Motor, Câmbio & Cofragem",
@@ -370,7 +365,7 @@
     const zoneCount = document.getElementById('zone-count');
     const partsList = document.getElementById('parts-list');
 
-    // Mudar cor da lataria do vetor
+    // Mudar cor da lataria
     function mudarCorCarro(hex) {
       corCarroAtual = hex;
       const bodyPath = document.getElementById('car-body');
@@ -410,7 +405,7 @@
       carTitle.textContent = v.nome;
       carBodyBadge.textContent = `Carroceria: ${v.body.toUpperCase()}`;
 
-      // Injeta SVG do tipo correto
+      // Injeta o SVG correto
       svgContainer.innerHTML = svgTemplates[v.body] || svgTemplates.hatch;
       mudarCorCarro(corCarroAtual);
 
@@ -437,7 +432,6 @@
       vehicleSearch.focus();
     });
 
-    // Fechar dropdown ao clicar fora
     document.addEventListener('click', (e) => {
       if (!vehicleSearch.contains(e.target) && !vehicleDropdown.contains(e.target)) {
         vehicleDropdown.classList.add('hidden');
@@ -457,13 +451,12 @@
       });
     }
 
-    // Renderiza a Lista de Peças
+    // Renderiza a Lista de Peças gerando links de Afiliado automaticamente
     function carregarZona(key) {
       zonaAtualChave = key;
       const dados = dbPecas[key];
       if (!dados) return;
 
-      // Reseta o filtro rápido de peças ao mudar de setor
       searchInput.value = '';
 
       const modeloCarro = veiculoSelecionado.nome;
@@ -477,10 +470,10 @@
 
       dados.pecas.forEach(peca => {
         const termoCompleto = `${peca.busca} ${modeloCarro}`;
-        const urlML = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoCompleto)}`;
+        // Geração do Link com Tag de Afiliado
+        const urlML = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoCompleto);
         const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
 
-        // Tag de Dificuldade
         let tagDifHTML = "";
         if (peca.dif === "diy") {
           tagDifHTML = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">🟢 DIY (Fácil)</span>`;
@@ -524,54 +517,6 @@
 
     // Inicialização
     selecionarVeiculo("vw-gol-g2-g4");
-    <script>
-// =================================================================
-// 1. CONFIGURAÇÃO DE AFILIADOS (MERCADO LIVRE)
-// =================================================================
-const AFILIADOS_CONFIG = {
-  mercadolivre: {
-    ativo: true,
-    // Parâmetros oficiais da sua conta de afiliado
-    trackingParams: "matt_tool=60782260&matt_word=antoniocfn12",
-    
-    // Gera link de afiliado tanto para URLs diretas quanto para termos de busca
-    gerarLink: function(entrada) {
-      if (!entrada) return "";
-
-      // Se for uma URL completa (ex: link direto de um produto)
-      if (entrada.startsWith("http://") || entrada.startsWith("https://")) {
-        const separador = entrada.includes("?") ? "&" : "?";
-        return `${entrada}${separador}${this.trackingParams}`;
-      }
-
-      // Se for apenas um termo de busca (ex: "notebook", "smartphone")
-      const urlBase = `https://lista.mercadolivre.com.br/${encodeURIComponent(entrada)}`;
-      return `${urlBase}?${this.trackingParams}`;
-    }
-  }
-};
-
-// =================================================================
-// 2. APLICAÇÃO AUTOMÁTICA NOS LINKS DO SITE
-// =================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  if (!AFILIADOS_CONFIG.mercadolivre.ativo) return;
-
-  // Busca todos os links <a> na página que apontam para o Mercado Livre
-  const links = document.querySelectorAll('a[href*="mercadolivre.com"]');
-  
-  links.forEach(link => {
-    // Aplica as tags de afiliado se o link ainda não as possuir
-    if (!link.href.includes("matt_tool=")) {
-      link.href = AFILIADOS_CONFIG.mercadolivre.gerarLink(link.href);
-    }
-  });
-});
-function redirecionarBuscaMercadoLivre(termoOuUrl) {
-  if (!termoOuUrl) return;
-  const urlAfiliado = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoOuUrl);
-  window.open(urlAfiliado, '_blank');
-}
   </script>
 </body>
 </html>
