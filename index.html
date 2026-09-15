@@ -524,6 +524,54 @@
 
     // Inicialização
     selecionarVeiculo("vw-gol-g2-g4");
+    <script>
+// =================================================================
+// 1. CONFIGURAÇÃO DE AFILIADOS (MERCADO LIVRE)
+// =================================================================
+const AFILIADOS_CONFIG = {
+  mercadolivre: {
+    ativo: true,
+    // Parâmetros oficiais da sua conta de afiliado
+    trackingParams: "matt_tool=60782260&matt_word=antoniocfn12",
+    
+    // Gera link de afiliado tanto para URLs diretas quanto para termos de busca
+    gerarLink: function(entrada) {
+      if (!entrada) return "";
+
+      // Se for uma URL completa (ex: link direto de um produto)
+      if (entrada.startsWith("http://") || entrada.startsWith("https://")) {
+        const separador = entrada.includes("?") ? "&" : "?";
+        return `${entrada}${separador}${this.trackingParams}`;
+      }
+
+      // Se for apenas um termo de busca (ex: "notebook", "smartphone")
+      const urlBase = `https://lista.mercadolivre.com.br/${encodeURIComponent(entrada)}`;
+      return `${urlBase}?${this.trackingParams}`;
+    }
+  }
+};
+
+// =================================================================
+// 2. APLICAÇÃO AUTOMÁTICA NOS LINKS DO SITE
+// =================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  if (!AFILIADOS_CONFIG.mercadolivre.ativo) return;
+
+  // Busca todos os links <a> na página que apontam para o Mercado Livre
+  const links = document.querySelectorAll('a[href*="mercadolivre.com"]');
+  
+  links.forEach(link => {
+    // Aplica as tags de afiliado se o link ainda não as possuir
+    if (!link.href.includes("matt_tool=")) {
+      link.href = AFILIADOS_CONFIG.mercadolivre.gerarLink(link.href);
+    }
+  });
+});
+function redirecionarBuscaMercadoLivre(termoOuUrl) {
+  if (!termoOuUrl) return;
+  const urlAfiliado = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoOuUrl);
+  window.open(urlAfiliado, '_blank');
+}
   </script>
 </body>
 </html>
