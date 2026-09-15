@@ -3,89 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guia Interativo de Peças e Manutenção 2D</title>
+  <title>Guia de Peças e Manutenção 2D</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+<body class="bg-white text-slate-800 p-4 md:p-8 font-sans">
 
-  <div class="max-w-6xl mx-auto space-y-6">
-    
-    <!-- Cabeçalho -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg">
-      <div>
-        <h1 class="text-2xl font-black text-white tracking-wide">Guia de Peças & Manutenção</h1>
-        <p class="text-slate-400 text-sm mt-1">Selecione o veículo e a zona para encontrar peças compatíveis e tutoriais.</p>
-      </div>
-      
-      <!-- Seletor de Veículo -->
-      <div class="w-full md:w-64">
-        <label for="carSelect" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Veículo Selecionado</label>
-        <select id="carSelect" onchange="trocarVeiculo(this.value)" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="gol_g5">VW Gol G5 1.0 (2009-2012)</option>
-          <option value="palio_fire">Fiat Palio Fire 1.0 (2005-2014)</option>
-          <option value="onix_10">Chevrolet Onix 1.0 (2013-2019)</option>
-        </select>
-      </div>
-    </header>
-
-    <!-- Conteúdo Principal -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- Painel de Seleção de Zonas -->
-      <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg">
-        <h2 class="text-lg font-bold text-white mb-4">Zonas do Veículo</h2>
-        <div class="flex flex-col gap-2.5" id="zoneButtons">
-          <button onclick="carregarZona('motor')" class="zona-btn text-left px-4 py-3 rounded-xl bg-blue-600 text-white font-medium text-sm transition flex items-center justify-between">
-            <span>⚙️ Compartimento do Motor</span>
-            <span class="text-xs opacity-75">→</span>
-          </button>
-          <button onclick="carregarZona('suspensao')" class="zona-btn text-left px-4 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-sm transition flex items-center justify-between">
-            <span>🛞 Suspensão & Freios</span>
-            <span class="text-xs opacity-75">→</span>
-          </button>
-          <button onclick="carregarZona('ar_arrefecimento')" class="zona-btn text-left px-4 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-sm transition flex items-center justify-between">
-            <span>❄️ Arrefecimento & Climatização</span>
-            <span class="text-xs opacity-75">→</span>
-          </button>
-          <button onclick="carregarZona('eletrica')" class="zona-btn text-left px-4 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium text-sm transition flex items-center justify-between">
-            <span>⚡ Sistema Elétrico</span>
-            <span class="text-xs opacity-75">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Lista de Peças Recomendadas -->
-      <div class="lg:col-span-2 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between border-b border-slate-700 pb-4 mb-4">
-            <h3 id="zoneTitle" class="text-lg font-bold text-white">⚙️ Compartimento do Motor</h3>
-            <span id="carTag" class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-semibold">VW Gol G5 1.0</span>
-          </div>
-
-          <div id="partsList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Os cards de peças serão injetados aqui via JS -->
-          </div>
-        </div>
-
-        <footer class="mt-6 pt-4 border-t border-slate-700/50 text-xs text-slate-400 text-center">
-          Compras realizadas através dos links apoiam a manutenção desta plataforma sem custo adicional.
-        </footer>
-      </div>
-
-    </div>
-  </div>
-
+  <!-- CONFIGURAÇÃO DO SEU AFILIADO NO JAVASCRIPT -->
   <script>
-    // ==========================================
-    // 1. CONFIGURAÇÃO OFICIAL DO SEU AFILIADO ML
-    // ==========================================
     const AFILIADOS_CONFIG = {
       mercadolivre: {
         ativo: true,
-        // Seus parâmetros oficiais extraídos
+        // Seus parâmetros oficiais de Afiliado Mercado Livre
         trackingParams: "matt_tool=60782260&matt_word=antoniocfn12",
         
-        // Gera a URL formatada de busca com suas tags
         gerarLink: function(termoBusca) {
           const urlBase = `https://lista.mercadolivre.com.br/${encodeURIComponent(termoBusca)}`;
           return `${urlBase}?${this.trackingParams}`;
@@ -93,157 +23,6 @@
       }
     };
 
-    // ==========================================
-    // 2. BASE DE DADOS DE VEÍCULOS E PEÇAS
-    // ==========================================
-    const BASE_VEICULOS = {
-      gol_g5: {
-        nome: "VW Gol G5 1.0",
-        zonas: {
-          motor: [
-            { nome: "Jogo de Velas de Ignição", busca: "jogo de velas gol g5 1.0", nivel: "Fácil" },
-            { nome: "Cabo de Ignição (Velas)", busca: "cabo de vela gol g5 1.0", nivel: "Fácil" },
-            { nome: "Filtro de Óleo do Motor", busca: "filtro de oleo gol g5 1.0", nivel: "Médio" },
-            { nome: "Filtro de Ar do Motor", busca: "filtro de ar gol g5 1.0", nivel: "Fácil" },
-            { nome: "Óleo 5W40 Sintético (4L)", busca: "oleo 5w40 gol g5 1.0", nivel: "Médio" }
-          ],
-          suspensao: [
-            { nome: "Par de Amortecedores Dianteiros", busca: "amortecedor dianteiro gol g5", nivel: "Avançado" },
-            { nome: "Jogo de Pastilhas de Freio", busca: "pastilha de freio dianteira gol g5", nivel: "Médio" },
-            { nome: "Kit Coxim e Batente Dianteiro", busca: "kit coxim batente gol g5", nivel: "Avançado" }
-          ],
-          ar_arrefecimento: [
-            { nome: "Filtro de Cabine / Ar Condicionado", busca: "filtro ar condicionado gol g5", nivel: "Fácil" },
-            { nome: "Aditivo de Radiador (Concentrado)", busca: "aditivo radiador gol g5", nivel: "Fácil" },
-            { nome: "Válvula Termostática com Carcaça", busca: "carcaca valvula termostatica gol g5 1.0", nivel: "Médio" }
-          ],
-          eletrica: [
-            { nome: "Bateria 60Ah 12V", busca: "bateria 60ah gol g5", nivel: "Fácil" },
-            { nome: "Alternador 90A", busca: "alternador gol g5 1.0", nivel: "Avançado" },
-            { nome: "Motor de Partida / Arranque", busca: "motor arranque gol g5 1.0", nivel: "Avançado" }
-          ]
-        }
-      },
-      palio_fire: {
-        nome: "Fiat Palio Fire 1.0",
-        zonas: {
-          motor: [
-            { nome: "Jogo de Velas de Ignição", busca: "jogo de velas palio fire 1.0", nivel: "Fácil" },
-            { nome: "Filtro de Ar do Motor", busca: "filtro de ar palio fire 1.0", nivel: "Fácil" },
-            { nome: "Kit Correia Dentada + Tensor", busca: "kit correia dentada palio fire 1.0", nivel: "Avançado" }
-          ],
-          suspensao: [
-            { nome: "Par de Amortecedores Dianteiros", busca: "amortecedor dianteiro palio fire", nivel: "Avançado" },
-            { nome: "Kit Pastilha de Freio", busca: "pastilha de freio palio fire", nivel: "Médio" }
-          ],
-          ar_arrefecimento: [
-            { nome: "Bomba d'Água Motor Fire", busca: "bomba agua palio fire 1.0", nivel: "Avançado" },
-            { nome: "Filtro de Ar Condicionado", busca: "filtro ar condicionado palio fire", nivel: "Fácil" }
-          ],
-          eletrica: [
-            { nome: "Bateria 50Ah 12V", busca: "bateria 50ah palio fire", nivel: "Fácil" },
-            { nome: "Bobina de Ignição Double", busca: "bobina ignicao palio fire 1.0", nivel: "Médio" }
-          ]
-        }
-      },
-      onix_10: {
-        nome: "Chevrolet Onix 1.0",
-        zonas: {
-          motor: [
-            { nome: "Jogo de Velas de Ignição", busca: "jogo velas onix 1.0", nivel: "Fácil" },
-            { nome: "Filtro de Óleo", busca: "filtro de oleo onix 1.0", nivel: "Médio" },
-            { nome: "Óleo 5W30 Dexos1 Gen2", busca: "oleo 5w30 dexos1 gen2 onix", nivel: "Médio" }
-          ],
-          suspensao: [
-            { nome: "Jogo de Pastilhas de Freio", busca: "pastilha freio dianteira onix 1.0", nivel: "Médio" },
-            { nome: "Disco de Freio Ventillado", busca: "disco de freio dianteiro onix 1.0", nivel: "Avançado" }
-          ],
-          ar_arrefecimento: [
-            { nome: "Filtro de Ar Condicionado / Cabine", busca: "filtro ar condicionado onix 1.0", nivel: "Fácil" },
-            { nome: "Aditivo de Radiador Orgânico (Rosa)", busca: "aditivo radiador onix", nivel: "Fácil" }
-          ],
-          eletrica: [
-            { nome: "Bateria 60Ah 12V", busca: "bateria 60ah onix", nivel: "Fácil" }
-          ]
-        }
-      }
-    };
-
-    let veiculoAtualKey = 'gol_g5';
-    let zonaAtualKey = 'motor';
-
-    // TITULOS DAS ZONAS PARA EXIBIÇÃO
-    const TITULOS_ZONAS = {
-      motor: '⚙️ Compartimento do Motor',
-      suspensao: '🛞 Suspensão & Freios',
-      ar_arrefecimento: '❄️ Arrefecimento & Climatização',
-      eletrica: '⚡ Sistema Elétrico'
-    };
-
-    // ==========================================
-    // 3. FUNÇÕES DE RENDERIZAÇÃO E NAVEGAÇÃO
-    // ==========================================
-    function trocarVeiculo(carKey) {
-      veiculoAtualKey = carKey;
-      document.getElementById('carTag').textContent = BASE_VEICULOS[carKey].nome;
-      carregarZona(zonaAtualKey);
-    }
-
-    function carregarZona(zonaKey) {
-      zonaAtualKey = zonaKey;
-      document.getElementById('zoneTitle').textContent = TITULOS_ZONAS[zonaKey];
-      
-      const partsList = document.getElementById('partsList');
-      partsList.innerHTML = '';
-
-      const veiculoObj = BASE_VEICULOS[veiculoAtualKey];
-      const pecas = veiculoObj.zonas[zonaKey] || [];
-
-      if (pecas.length === 0) {
-        partsList.innerHTML = `<p class="text-slate-400 text-sm col-span-2 py-4">Nenhuma peça cadastrada nesta categoria para este modelo.</p>`;
-        return;
-      }
-
-      pecas.forEach(peca => {
-        // Gera o link do ML com a tag de afiliado + nome do veículo
-        const termoCompleto = `${peca.busca}`;
-        const urlML = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoCompleto);
-
-        // Link de busca de tutoriais de troca no YouTube
-        const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + peca.busca)}`;
-
-        // Tag visual de nível de dificuldade
-        let corNivel = 'bg-green-500/10 text-green-400 border-green-500/30';
-        if (peca.nivel === 'Médio') corNivel = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
-        if (peca.nivel === 'Avançado') corNivel = 'bg-red-500/10 text-red-400 border-red-500/30';
-
-        const cardHTML = `
-          <div class="bg-slate-900 border border-slate-700 hover:border-slate-500 p-4 rounded-xl transition duration-200 shadow-sm flex flex-col justify-between space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <h4 class="font-bold text-white text-sm leading-snug">${peca.nome}</h4>
-              <span class="text-[10px] font-semibold border px-2 py-0.5 rounded-md ${corNivel} whitespace-nowrap">
-                ${peca.nivel}
-              </span>
-            </div>
-            
-            <div class="flex gap-2 pt-1">
-              <a href="${urlML}" target="_blank" rel="noopener noreferrer"
-                 onclick="registrarCliqueAfiliado('${peca.nome}', '${veiculoObj.nome}')"
-                 class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs py-2 px-3 rounded-lg text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
-                🛒 Mercado Livre
-              </a>
-              <a href="${urlYouTube}" target="_blank" rel="noopener noreferrer" 
-                 class="bg-slate-800 hover:bg-slate-700 text-red-400 border border-slate-700 hover:border-red-500/40 text-xs py-2 px-3 rounded-lg text-center font-semibold transition flex items-center justify-center gap-1">
-                ▶ Tutorial
-              </a>
-            </div>
-          </div>
-        `;
-        partsList.insertAdjacentHTML('beforeend', cardHTML);
-      });
-    }
-
-    // Função para metrificação (opcional - Google Analytics)
     function registrarCliqueAfiliado(nomePeca, modeloCarro) {
       if (typeof gtag === 'function') {
         gtag('event', 'clique_afiliado_ml', {
@@ -252,11 +31,53 @@
         });
       }
     }
-
-    // Inicialização ao carregar a página
-    document.addEventListener('DOMContentLoaded', () => {
-      carregarZona('motor');
-    });
   </script>
+
+  <!-- LÓGICA DE MONTAGEM DOS CARDS (DESIGN ORIGINAL) -->
+  <!-- 
+    Exemplo de inserção dentro da sua função carregarZona:
+  -->
+  <script>
+    function gerarCardPeca(peca, modeloCarro) {
+      const termoCompleto = `${peca.busca} ${modeloCarro}`;
+      
+      // 1. Gera o link do Mercado Livre já com seu ID de Afiliado
+      const urlML = AFILIADOS_CONFIG.mercadolivre.gerarLink(termoCompleto);
+      
+      // 2. Link de busca do Tutorial no YouTube
+      const urlYouTube = `https://www.youtube.com/results?search_query=${encodeURIComponent('como trocar ' + termoCompleto)}`;
+
+      // Tag de dificuldade (opcional)
+      let tagDifHTML = '';
+      if (peca.nivel) {
+        let cor = 'bg-green-100 text-green-700';
+        if (peca.nivel === 'Médio') cor = 'bg-amber-100 text-amber-700';
+        if (peca.nivel === 'Avançado') cor = 'bg-red-100 text-red-700';
+        tagDifHTML = `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${cor}">${peca.nivel}</span>`;
+      }
+
+      // Card com o visual original claro (bg-slate-50, rounded-2xl)
+      return `
+        <div class="bg-slate-50 border border-slate-200 hover:border-blue-400 p-3.5 rounded-2xl transition group shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-slate-900 text-xs group-hover:text-blue-700 transition">${peca.nome}</h4>
+            ${tagDifHTML}
+          </div>
+          <div class="flex gap-2">
+            <a href="${urlML}" target="_blank" rel="noopener noreferrer" 
+               onclick="registrarCliqueAfiliado('${peca.nome}', '${modeloCarro}')"
+               class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
+              🛒 Mercado Livre
+            </a>
+            <a href="${urlYouTube}" target="_blank" rel="noopener noreferrer" 
+               class="flex-1 bg-red-100 hover:bg-red-200 text-red-900 border border-red-300 text-[11px] py-2 px-2.5 rounded-xl text-center font-bold transition flex items-center justify-center gap-1 shadow-sm">
+              ▶ Tutorial
+            </a>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+
 </body>
 </html>
